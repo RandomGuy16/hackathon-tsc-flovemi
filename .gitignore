@@ -1,9 +1,12 @@
+# Secrets and environment
+.env*
+!.env.example
+
 # AI assistant configuration — never commit to GitHub
 .cursorrules
 .clinerules
 .windsurfrules
 CLAUDE.md
-
 .claude/
 .cline/
 
@@ -16,10 +19,6 @@ mcp-config.local.json
 claude_mcp_config.json
 cline_mcp_config.json
 
-# Secrets and environment
-.env*
-!.env.example
-
 # macOS / OS metadata
 .DS_Store
 Thumbs.db
@@ -31,9 +30,13 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# IDE / local tooling
-.vscode/settings.json
+# IDE / local tooling / Editors
 .idea/
+.vscode/
+.vscode/settings.json
 *.swp
 *.swo
 *~
+
+# Temporary / testing files
+test.md
