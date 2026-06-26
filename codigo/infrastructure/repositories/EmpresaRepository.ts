@@ -50,25 +50,56 @@ export class EmpresaRepository implements IEmpresaRepository {
 
 
   async obtenerPorRuc(ruc: string): Promise<Empresa> {
-    const supabase = await createClient()
+    let supabase = null;
+    try {
+      supabase = await createClient();
+    } catch (e) {
+      console.warn('[EmpresaRepository] No se pudo inicializar cliente de Supabase:', e);
+    }
 
-    // 1. Intentar desde la cache completa latinfo_cache
-    const kyb = await leerCacheKyb(supabase, ruc)
-    if (kyb) return mapKybEmpresa(kyb)
+    if (supabase) {
+      try {
+        // 1. Intentar desde la cache completa latinfo_cache
+        const kyb = await leerCacheKyb(supabase, ruc)
+        if (kyb) return mapKybEmpresa(kyb)
 
-    // 2. Si no hay cache, intentar desde companies
-    const { data: cached } = await supabase
-      .from('companies')
-      .select('*')
-      .eq('ruc', ruc)
-      .single()
+        // 2. Si no hay cache, intentar desde companies
+        const { data: cached } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('ruc', ruc)
+          .single()
 
-    if (cached) return mapRowEmpresa(cached)
+        if (cached) return mapRowEmpresa(cached)
+      } catch (e) {
+        console.warn('[EmpresaRepository] Error al leer cache/companies en Supabase:', e);
+      }
+    }
 
-    // 3. Llamar a latinfo.dev y persistir resultado
-    const liveKyb = await this.latinfo.obtenerKyb(ruc)
-    await persistirKyb(supabase, liveKyb)
-    return mapKybEmpresa(liveKyb)
+
+    try {
+      // 2. Llamar a latinfo.dev y persistir resultado
+      const kyb = await this.latinfo.obtenerKyb(ruc)
+      if (supabase) {
+        try {
+          await persistirKyb(supabase, kyb)
+        } catch (e) {
+          console.warn('[EmpresaRepository] No se pudo persistir el Kyb en Supabase:', e);
+        }
+      }
+      return mapKybEmpresa(kyb)
+    } catch (error) {
+      console.warn(`[EmpresaRepository] Falló obtención en latinfo.dev para RUC ${ruc}:`, error)
+      
+      // Fallback: Buscar en dataset semilla local en memoria
+      const local = EMPRESAS_SEMILLA_LOCAL.find(e => e.ruc === ruc)
+      if (local) {
+        console.log(`[EmpresaRepository] Fallback exitoso a semilla local para RUC ${ruc}`)
+        return local
+      }
+      
+      throw error // Lanzar error original si de verdad no hay datos de la empresa en ningún lado
+    }
   }
 
   async buscarPorRegion(region: string): Promise<Empresa[]> {
