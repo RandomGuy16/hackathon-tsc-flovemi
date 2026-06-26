@@ -7,17 +7,25 @@
 .clinerules
 .windsurfrules
 CLAUDE.md
+KIMI.md
 .claude/
 .cline/
 
 # AI documentation that should stay local
 docs/ai-context.md
+docs/ai-context/supabase-setup.md
+
+# Ignore all decisions except for the hybrid data strategy decision
+docs/decisions/*
+docs/decisions/data-extraction-strategy.md
 
 # MCP server configuration contains secrets/connection strings
 mcp-config.json
 mcp-config.local.json
 claude_mcp_config.json
 cline_mcp_config.json
+cursor_mcp_config.json
+windsurf_mcp_config.json
 
 # macOS / OS metadata
 .DS_Store
