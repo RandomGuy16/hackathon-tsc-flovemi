@@ -102,12 +102,12 @@ const RiskMap: React.FC<RiskMapProps> = ({ data }) => {
                   key={i} 
                   center={[p.latitude, p.longitude]}
                   radius={5}
-                  pathOptions={{ fillColor: '#3B82F6', color: '#fff', weight: 1, fillOpacity: 0.6 }}
+                  pathOptions={{ fillColor: '#b45309', color: '#fff', weight: 1, fillOpacity: 0.6 }}
                 >
                   <Popup>
                     <div className="p-1">
                       <p className="font-bold text-slate-900">{p.name}</p>
-                      <p className="text-xs font-bold text-blue-600">Presupuesto: S/ {p.budget.toLocaleString()}</p>
+                      <p className="text-xs font-bold text-amber-700">Presupuesto: S/ {p.budget.toLocaleString()}</p>
                     </div>
                   </Popup>
                 </CircleMarker>
