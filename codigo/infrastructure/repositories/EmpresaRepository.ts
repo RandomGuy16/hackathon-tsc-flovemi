@@ -8,7 +8,21 @@ export class EmpresaRepository implements IEmpresaRepository {
   private latinfo = new LatinfoClient()
 
   async buscar(termino: string): Promise<Empresa[]> {
-    const res = await this.latinfo.buscarPorNombre(termino)
+    const limpio = termino.trim()
+    const esRuc = /^\d{11}$/.test(limpio)
+
+    if (esRuc) {
+      try {
+        const empresa = await this.obtenerPorRuc(limpio)
+        if (empresa && empresa.ruc) {
+          return [empresa]
+        }
+      } catch (err) {
+        // Ignorar error y proceder con la búsqueda estándar
+      }
+    }
+
+    const res = await this.latinfo.buscarPorNombre(limpio)
     // Respuesta real: array directo con {id (RUC), razon_social, estado}
     return (Array.isArray(res) ? res : []).map(r => ({
       ruc:        r.id,
