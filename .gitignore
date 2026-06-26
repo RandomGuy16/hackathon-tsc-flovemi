@@ -1,0 +1,39 @@
+# AI assistant configuration — never commit to GitHub
+.cursorrules
+.clinerules
+.windsurfrules
+CLAUDE.md
+
+.claude/
+.cline/
+
+# AI documentation that should stay local
+docs/ai-context.md
+
+# MCP server configuration contains secrets/connection strings
+mcp-config.json
+mcp-config.local.json
+claude_mcp_config.json
+cline_mcp_config.json
+
+# Secrets and environment
+.env*
+!.env.example
+
+# macOS / OS metadata
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# IDE / local tooling
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
