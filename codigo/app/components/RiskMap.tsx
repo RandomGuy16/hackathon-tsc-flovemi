@@ -26,9 +26,19 @@ const RiskMap: React.FC<RiskMapProps> = ({ data }) => {
     return '#10B981';
   };
 
-  // Center of Peru if no data, otherwise center of companies
-  const center: [number, number] = data.companies.length > 0 
-    ? [data.companies[0].latitude, data.companies[0].longitude]
+  const companiesWithCoords = data.companies.filter(
+    (c) => typeof c.latitude === 'number' && typeof c.longitude === 'number'
+  );
+  const conflictsWithCoords = data.conflicts.filter(
+    (c) => typeof c.latitude === 'number' && typeof c.longitude === 'number'
+  );
+  const projectsWithCoords = data.projects.filter(
+    (p) => typeof p.latitude === 'number' && typeof p.longitude === 'number'
+  );
+
+  // Center of Peru if no data, otherwise center of first valid company
+  const center: [number, number] = companiesWithCoords.length > 0
+    ? [companiesWithCoords[0].latitude, companiesWithCoords[0].longitude]
     : [-9.19, -75.015];
 
   return (
@@ -47,9 +57,9 @@ const RiskMap: React.FC<RiskMapProps> = ({ data }) => {
         <LayersControl position="topright">
           <LayersControl.Overlay checked name="Empresas Mineras">
             <>
-              {data.companies.map((c) => (
-                <CircleMarker 
-                  key={c.ruc} 
+              {companiesWithCoords.map((c) => (
+                <CircleMarker
+                  key={c.ruc}
                   center={[c.latitude, c.longitude]}
                   radius={8}
                   pathOptions={{ 
@@ -78,9 +88,9 @@ const RiskMap: React.FC<RiskMapProps> = ({ data }) => {
 
           <LayersControl.Overlay name="Conflictos Sociales">
              <>
-              {data.conflicts.map((c, i) => (
-                <Marker 
-                  key={i} 
+              {conflictsWithCoords.map((c, i) => (
+                <Marker
+                  key={i}
                   position={[c.latitude, c.longitude]}
                 >
                   <Popup>
@@ -97,9 +107,9 @@ const RiskMap: React.FC<RiskMapProps> = ({ data }) => {
 
           <LayersControl.Overlay name="Inversión Pública">
              <>
-              {data.projects.map((p, i) => (
-                <CircleMarker 
-                  key={i} 
+              {projectsWithCoords.map((p, i) => (
+                <CircleMarker
+                  key={i}
                   center={[p.latitude, p.longitude]}
                   radius={5}
                   pathOptions={{ fillColor: '#b45309', color: '#fff', weight: 1, fillOpacity: 0.6 }}

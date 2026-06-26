@@ -3,12 +3,34 @@ import type { IRegistroAmbientalRepository } from '../../domain/repositories/IRe
 import type { RegistroAmbiental, RegistroCalidadAire } from '../../domain/entities/registro-ambiental'
 import { AIR_QUALITY_LIMIT } from '../../domain/config/constantes'
 
-// OEFA sanciones: endpoint de latinfo.dev no disponible aún.
+// OEFA sanciones: tabla oefa_sanctions en Supabase (seed desde resoluciones OEFA).
 // Calidad de aire: tabla air_quality en Supabase (seed desde OEFA CSV).
 export class RegistroAmbientalRepository implements IRegistroAmbientalRepository {
-  async obtenerPorRuc(_ruc: string): Promise<RegistroAmbiental | null> {
-    // Retorna null hasta que se siembre oefa_sanctions en Supabase (RF-04 lo tolera)
-    return null
+  async obtenerPorRuc(ruc: string): Promise<RegistroAmbiental | null> {
+    if (!ruc) return null
+
+    const supabase = await createClient()
+    const { data } = await supabase
+      .from('oefa_sanctions')
+      .select('*')
+      .eq('company_ruc', ruc)
+      .order('sanction_date', { ascending: false })
+
+    const sanciones = (data ?? []).map(r => ({
+      autoridad:   (r.authority as string) ?? 'OEFA',
+      fecha:       (r.sanction_date as string) ?? '',
+      descripcion: (r.description as string) ?? '',
+      monto:       (r.amount as number) ?? null,
+      estado:      (r.status as string) ?? 'firme',
+    }))
+
+    return {
+      empresaRuc:        ruc,
+      cantidadSanciones: sanciones.length,
+      sancionesFirmes:   sanciones.filter(s => s.estado === 'firme').length,
+      sanciones:         sanciones,
+      calidadAire:       [],
+    }
   }
 
   async obtenerCalidadAirePorRegion(region: string): Promise<RegistroCalidadAire[]> {

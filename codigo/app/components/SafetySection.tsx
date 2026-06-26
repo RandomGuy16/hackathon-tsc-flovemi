@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserMode, CompanyDashboardData } from '@/lib/types';
-import { ShieldAlert, Info, Skull, Thermometer } from 'lucide-react';
+import { Skull, Thermometer } from 'lucide-react';
 import MethodologyCard from './MethodologyCard';
 import SourceBadge from './SourceBadge';
 import VerificationNotice from './VerificationNotice';

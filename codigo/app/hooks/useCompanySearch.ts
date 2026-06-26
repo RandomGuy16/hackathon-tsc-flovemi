@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable react-hooks/set-state-in-effect -- fetch hook: state updates happen inside async resolution */
+
 import { useEffect, useState } from "react";
 import { searchCompanies } from "@/lib/api";
 import { CompanySearchResult } from "@/lib/types";

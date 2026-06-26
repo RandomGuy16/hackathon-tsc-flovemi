@@ -1,6 +1,7 @@
 import React from 'react';
 import { UserMode, CompanyDashboardData } from '@/lib/types';
-import { Pickaxe, Clock, MapPin, Database, ArrowUpRight } from 'lucide-react';
+import { Clock, MapPin, Database, ArrowUpRight } from 'lucide-react';
+import type { EstadoProyectoMinero } from '@/domain/entities/proyecto-minero';
 import ProjectStatusChart from './ProjectStatusChart';
 import MethodologyCard from './MethodologyCard';
 import SourceBadge from './SourceBadge';
@@ -11,7 +12,7 @@ interface MiningProjectsSectionProps {
   mode: UserMode;
 }
 
-const statusConfig = {
+const statusConfig: Record<EstadoProyectoMinero, { label: string; bg: string; text: string; border: string }> = {
   de_acuerdo: { label: 'En Regla', bg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-200' },
   paralizado: { label: 'Paralizado', bg: 'bg-rose-100', text: 'text-rose-700', border: 'border-rose-200' },
   en_tramite: { label: 'En Trámite', bg: 'bg-amber-100', text: 'text-amber-700', border: 'border-amber-200' },
@@ -27,7 +28,7 @@ const MiningProjectsSection: React.FC<MiningProjectsSectionProps> = ({ data, mod
       acc.push({ status: p.status, count: 1 });
     }
     return acc;
-  }, [] as { status: any; count: number }[]);
+  }, [] as { status: EstadoProyectoMinero; count: number }[]);
 
   if (mode === 'citizen') {
     return (
