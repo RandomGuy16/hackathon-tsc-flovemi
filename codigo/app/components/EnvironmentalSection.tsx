@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserMode, CompanyDashboardData } from '@/lib/types';
-import { Leaf, AlertTriangle, Wind, Info, MapPin } from 'lucide-react';
+import { Leaf, Wind, MapPin } from 'lucide-react';
 import MethodologyCard from './MethodologyCard';
 import SourceBadge from './SourceBadge';
 import VerificationNotice from './VerificationNotice';

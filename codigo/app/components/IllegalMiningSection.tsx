@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserMode, CompanyDashboardData } from '@/lib/types';
-import { Ban, AlertCircle, Info, FileWarning, Search, ShieldBan, MapPin } from 'lucide-react';
+import { AlertCircle, Info, FileWarning, Search, ShieldBan, MapPin } from 'lucide-react';
 import MethodologyCard from './MethodologyCard';
 import SourceBadge from './SourceBadge';
 import VerificationNotice from './VerificationNotice';

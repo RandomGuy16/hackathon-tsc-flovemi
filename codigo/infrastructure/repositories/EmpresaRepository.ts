@@ -9,17 +9,34 @@ export class EmpresaRepository implements IEmpresaRepository {
 
   async buscar(termino: string): Promise<Empresa[]> {
     const res = await this.latinfo.buscarPorNombre(termino)
-    // Respuesta real: array directo con {id (RUC), razon_social, estado}
-    return (Array.isArray(res) ? res : []).map(r => ({
-      ruc:        r.id,
-      razonSocial: r.razon_social,
-      estado:     r.estado?.toUpperCase() === 'ACTIVO' ? 'activa' : 'inactiva',
-      region:     '',
-      provincia:  null,
-      distrito:   null,
-      latitud:    null,
-      longitud:   null,
-    }))
+    const resultados = (Array.isArray(res) ? res : [])
+
+    // Enriquecer con ubicación cacheada en Supabase cuando exista
+    const supabase = await createClient()
+    const rucs = resultados.map(r => r.id)
+    const { data: cachedCompanies } = rucs.length > 0
+      ? await supabase
+          .from('companies')
+          .select('ruc, region, province, district')
+          .in('ruc', rucs)
+      : { data: [] }
+    const ubicacionPorRuc = new Map(
+      (cachedCompanies ?? []).map(c => [c.ruc as string, c]),
+    )
+
+    return resultados.map(r => {
+      const cached = ubicacionPorRuc.get(r.id)
+      return {
+        ruc:         r.id,
+        razonSocial: r.razon_social,
+        estado:      r.estado?.toUpperCase() === 'ACTIVO' ? 'activa' : 'inactiva',
+        region:      (cached?.region as string) ?? '',
+        provincia:   (cached?.province as string) ?? null,
+        distrito:    (cached?.district as string) ?? null,
+        latitud:     null,
+        longitud:    null,
+      }
+    })
   }
 
   async obtenerPorRuc(ruc: string): Promise<Empresa> {
@@ -83,21 +100,21 @@ export async function persistirKyb(
   supabase: Awaited<ReturnType<typeof createClient>>,
   kyb: LatinfoKybResponse,
 ) {
-  await Promise.all([
-    supabase.from('companies').upsert({
-      ruc:          kyb.ruc,
-      razon_social: kyb.identity.razon_social,
-      region:       kyb.public_entity?.departamento,
-      province:     kyb.public_entity?.provincia,
-      district:     kyb.public_entity?.distrito,
-    }),
-    supabase.from('latinfo_cache').upsert({
-      ruc:          kyb.ruc,
-      payload:      kyb as unknown as Record<string, unknown>,
-      fetched_at:   new Date().toISOString(),
-      source_status: 'ok',
-    }),
-  ])
+  // Primero companies porque latinfo_cache tiene FK hacia companies(ruc)
+  await supabase.from('companies').upsert({
+    ruc:          kyb.ruc,
+    razon_social: kyb.identity.razon_social,
+    region:       kyb.public_entity?.departamento,
+    province:     kyb.public_entity?.provincia,
+    district:     kyb.public_entity?.distrito,
+  })
+
+  await supabase.from('latinfo_cache').upsert({
+    ruc:          kyb.ruc,
+    payload:      kyb as unknown as Record<string, unknown>,
+    fetched_at:   new Date().toISOString(),
+    source_status: 'ok',
+  })
 }
 
 /** Lee el payload KYB de latinfo_cache respetando el TTL — null si expiró o no existe */
