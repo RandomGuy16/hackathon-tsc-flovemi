@@ -23,16 +23,18 @@ graph TD
     subgraph Domain
         UC1[BuscarEmpresa]
         UC2[ObtenerFichaEmpresa]
-        EN[Entidades: Empresa, Sancion, DeudaFiscal, Accidente, Contrato, FichaEmpresa]
-        RI[Repositorios abstractos: IEmpresaRepository, ISancionRepository, IDeudaRepository, IAccidenteRepository, IContratoRepository]
+     EN[Entidades: Empresa, Sancion, DeudaFiscal, Accidente, Contrato, FichaEmpresa, MiningProject, IllegalMiningRecord]
+     RI[Repositorios abstractos: IEmpresaRepository, ISancionRepository, IDeudaRepository, IAccidenteRepository, IContratoRepository, MiningProjectRepository, IllegalMiningRepository]
     end
 
     subgraph Infrastructure
-        IR1[EmpresaRepository]
-        IR2[SancionRepository]
-        IR3[DeudaRepository]
-        IR4[ContratoRepository]
-        IR5[AccidenteRepository]
+         IR1[EmpresaRepository]
+         IR2[SancionRepository]
+         IR3[DeudaRepository]
+         IR4[ContratoRepository]
+         IR5[AccidenteRepository]
+         IR6[MiningProjectRepository]
+         IR7[IllegalMiningRepository]
     end
 
     subgraph Fuentes externas
