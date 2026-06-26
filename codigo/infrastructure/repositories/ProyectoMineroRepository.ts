@@ -1,25 +1,64 @@
-import { createClient } from '../supabase/server'
 import type { IProyectoMineroRepository } from '../../domain/repositories/IProyectoMineroRepository'
 import type { ProyectoMinero } from '../../domain/entities/proyecto-minero'
+import { createClient } from '../supabase/server'
+import proyectosRaw from '../../public/proyectos_consolidados.json'
 
-// Fuente: tabla mining_projects en Supabase (seed desde datos MINEM / INGEMMET)
+const proyectosLocales = proyectosRaw as ProyectoMinero[]
+
+function normalizarTexto(str: string): string {
+  return (str ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+}
+
 export class ProyectoMineroRepository implements IProyectoMineroRepository {
   async obtenerPorRuc(ruc: string): Promise<ProyectoMinero[]> {
-    const supabase = await createClient()
-    const { data } = await supabase
-      .from('mining_projects')
-      .select('*')
-      .eq('company_ruc', ruc)
-    return (data ?? []).map(mapRow)
+    if (!ruc) return []
+    
+    // 1. Intentar desde Supabase
+    try {
+      const supabase = await createClient()
+      const { data } = await supabase
+        .from('mining_projects')
+        .select('*')
+        .eq('company_ruc', ruc)
+      
+      if (data && data.length > 0) {
+        return data.map(mapRow)
+      }
+    } catch (e) {
+      console.warn('[ProyectoMineroRepository] Falló consulta a Supabase, usando fallback local:', e)
+    }
+
+    // 2. Fallback a proyectos consolidados locales
+    return proyectosLocales.filter(p => p.empresaRuc === ruc)
   }
 
   async obtenerPorRegion(region: string): Promise<ProyectoMinero[]> {
-    const supabase = await createClient()
-    const { data } = await supabase
-      .from('mining_projects')
-      .select('*')
-      .ilike('region', region)
-    return (data ?? []).map(mapRow)
+    if (!region) return []
+    const regionNormalizada = normalizarTexto(region)
+
+    // 1. Intentar desde Supabase
+    try {
+      const supabase = await createClient()
+      const { data } = await supabase
+        .from('mining_projects')
+        .select('*')
+        .ilike('region', region)
+      
+      if (data && data.length > 0) {
+        return data.map(mapRow)
+      }
+    } catch (e) {
+      console.warn('[ProyectoMineroRepository] Falló consulta por región a Supabase, usando fallback local:', e)
+    }
+
+    // 2. Fallback a proyectos consolidados locales
+    return proyectosLocales.filter(
+      p => normalizarTexto(p.region) === regionNormalizada
+    )
   }
 }
 
