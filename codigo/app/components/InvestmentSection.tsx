@@ -1,6 +1,9 @@
 import React from 'react';
 import { UserMode, CompanyDashboardData } from '@/lib/types';
 import { TrendingUp, ClipboardCheck, Wallet, Landmark } from 'lucide-react';
+import MethodologyCard from './MethodologyCard';
+import SourceBadge from './SourceBadge';
+import VerificationNotice from './VerificationNotice';
 
 interface InvestmentSectionProps {
   data: CompanyDashboardData['investment'];
@@ -124,6 +127,26 @@ const InvestmentSection: React.FC<InvestmentSectionProps> = ({ data, mode }) => 
           </div>
         )}
       </div>
+
+      <MethodologyCard title="Nota metodológica: inversión pública">
+        <p className="mb-2">
+          Los proyectos de inversión pública vinculados se obtienen del{' '}
+          <strong>INFOBRAS / MEF</strong> y del Banco de Proyectos del Estado. El presupuesto
+          mostrado corresponde al monto oficial aprobado, no al desembolso real ejecutado.
+        </p>
+        <p className="mb-2">
+          El avance físico y financiero es reportado por la entidad ejecutora y puede tener
+          rezagos. La vinculación con la empresa minera puede ser directa (obra a cargo de la
+          empresa) o indirecta (proyecto en su zona de influencia).
+        </p>
+        <p>
+          Para reportajes sobre obras públicas se recomienda cruzar con el portal de transparencia
+          de la entidad ejecutora y con los informes de auditoría de la Contraloría.
+        </p>
+      </MethodologyCard>
+
+      <SourceBadge source="INFOBRAS / MEF / Banco de Proyectos" confidence="media" />
+      <VerificationNotice />
     </div>
   );
 };

@@ -2,6 +2,9 @@ import React from 'react';
 import { UserMode, CompanyDashboardData } from '@/lib/types';
 import { Pickaxe, Clock, MapPin, Database, ArrowUpRight } from 'lucide-react';
 import ProjectStatusChart from './ProjectStatusChart';
+import MethodologyCard from './MethodologyCard';
+import SourceBadge from './SourceBadge';
+import VerificationNotice from './VerificationNotice';
 
 interface MiningProjectsSectionProps {
   data: CompanyDashboardData['miningProjects'];
@@ -117,6 +120,26 @@ const MiningProjectsSection: React.FC<MiningProjectsSectionProps> = ({ data, mod
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Composición de Cartera</p>
         <ProjectStatusChart data={statusCounts} />
       </div>
+
+      <MethodologyCard title="Nota metodológica: proyectos mineros">
+        <p className="mb-2">
+          La información de proyectos mineros proviene de la{' '}
+          <strong>Base de Datos Minera del MINEM</strong> y de registros de concesiones mineras. El
+          estado mostrado refleja la última resolución registrada en el trámite correspondiente.
+        </p>
+        <p className="mb-2">
+          Los tiempos estimados de vida útil son proyecciones basadas en la información de
+          exploración y producción disponible; los cierres reales dependen de resultados técnicos,
+          decisiones económicas y autorizaciones regulatorias.
+        </p>
+        <p>
+          Para una cobertura completa se recomienda verificar el estado de cada concesión en el
+          portal de trámites mineros del MINEM y en los Estudios de Impacto Ambiental aprobados.
+        </p>
+      </MethodologyCard>
+
+      <SourceBadge source="MINEM / Base de Datos Minera" confidence="alta" />
+      <VerificationNotice />
     </div>
   );
 };

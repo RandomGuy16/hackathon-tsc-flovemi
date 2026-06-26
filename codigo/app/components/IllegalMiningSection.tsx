@@ -1,6 +1,9 @@
 import React from 'react';
 import { UserMode, CompanyDashboardData } from '@/lib/types';
 import { Ban, AlertCircle, Info, FileWarning, Search, ShieldBan, MapPin } from 'lucide-react';
+import MethodologyCard from './MethodologyCard';
+import SourceBadge from './SourceBadge';
+import VerificationNotice from './VerificationNotice';
 
 interface IllegalMiningSectionProps {
   data: CompanyDashboardData['illegalMining'];
@@ -84,7 +87,7 @@ const IllegalMiningSection: React.FC<IllegalMiningSectionProps> = ({ data, mode 
             <div key={i} className="group relative flex flex-col gap-5 rounded-3xl border border-slate-200 bg-white p-6 transition-all duration-300 hover:border-rose-300 hover:shadow-2xl hover:shadow-rose-100/50 overflow-hidden">
               {/* Daltonism-friendly crosshatch pattern */}
               <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[repeating-linear-gradient(-45deg,#000,#000_1px,transparent_1px,transparent_10px)]" />
-              
+
               <div className="relative z-10">
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex items-center gap-2 bg-rose-50 px-3 py-1 rounded-full ring-1 ring-rose-100">
@@ -97,7 +100,7 @@ const IllegalMiningSection: React.FC<IllegalMiningSectionProps> = ({ data, mode 
                     {item.regularizationStatus}
                   </span>
                 </div>
-                
+
                 <div className="flex flex-col gap-2">
                    <div className="flex items-center gap-1.5">
                       <MapPin className="h-3 w-3 text-slate-400" />
@@ -107,7 +110,7 @@ const IllegalMiningSection: React.FC<IllegalMiningSectionProps> = ({ data, mode 
                      {item.reason}
                    </p>
                 </div>
-                
+
                 {mode === 'official' && (
                   <div className="mt-5 grid grid-cols-2 gap-2 pt-4 border-t border-slate-100">
                     <button className="flex items-center justify-center gap-2 rounded-xl bg-slate-100 py-2.5 text-[9px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-200 transition-all cursor-pointer">
@@ -124,6 +127,27 @@ const IllegalMiningSection: React.FC<IllegalMiningSectionProps> = ({ data, mode 
           ))}
         </div>
       )}
+
+      <MethodologyCard title="Nota metodológica: minería ilegal">
+        <p className="mb-2">
+          Los registros de minería ilegal provienen de intervenciones del <strong>Programa Nacional
+          Integral para la Lucha contra la Minería Ilegal (PNIA)</strong>, denuncias ciudadanas y
+          reportes de fiscalización ambiental. La ubicación mostrada es aproximada y puede
+          corresponder a la zona de influencia de la concesión.
+        </p>
+        <p className="mb-2">
+          La vinculación de un evento de minería ilegal con una empresa concesionaria no implica
+          necesariamente responsabilidad directa de esa empresa. Puede tratarse de invasiones en
+          su concesión, zonas aledañas o casos en proceso de judicialización.
+        </p>
+        <p>
+          Para reportajes se recomienda contrastar con actas de intervención de la Fiscalía,
+          coordenadas UTM oficiales y versiones de la empresa y las comunidades afectadas.
+        </p>
+      </MethodologyCard>
+
+      <SourceBadge source="PNIA / Fiscalía Especializada / OEFA" confidence="baja" />
+      <VerificationNotice />
     </div>
   );
 };

@@ -1,6 +1,9 @@
 import React from 'react';
 import { UserMode, CompanyDashboardData } from '@/lib/types';
 import { Scale, FileText, ExternalLink, Gavel, CheckCircle2, AlertCircle } from 'lucide-react';
+import MethodologyCard from './MethodologyCard';
+import SourceBadge from './SourceBadge';
+import VerificationNotice from './VerificationNotice';
 
 interface LegalSectionProps {
   data: CompanyDashboardData['legal'];
@@ -128,15 +131,44 @@ const LegalSection: React.FC<LegalSectionProps> = ({ data, mode }) => {
       </div>
 
       {mode === 'journalist' && (
-        <a href="https://www.osce.gob.pe" target="_blank" rel="noreferrer" className="group flex items-center justify-between rounded-xl bg-amber-700 p-4 text-white shadow-md shadow-amber-200 transition-all hover:bg-amber-800">
-          <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-white/20 p-2">
-              <FileText className="h-4 w-4" />
+        <div className="flex flex-col gap-4">
+          <MethodologyCard title="Nota metodológica: fiscalización legal">
+            <p className="mb-2">
+              Los impedimentos y multas administrativas se obtienen del{' '}
+              <strong>OSCE</strong> a través del Registro Nacional de Proveedores Sancionados. Un
+              impedimento impide contratar con el Estado durante un plazo; una multa es una sanción
+              económica que no necesariamente genera inhabilitación.
+            </p>
+            <p className="mb-2">
+              Las licitaciones recientes son procesos en los que la empresa ha participado según el
+              SEACE. El monto mostrado es el presupuesto oficial del proceso, no el monto efectivamente
+              contratado.
+            </p>
+            <p>
+              Antes de afirmar que una empresa está inhabilitada para contratar con el Estado,
+              verifique la vigencia exacta del impedimento en el portal del OSCE, ya que las
+              sanciones pueden estar apeladas o extinguidas.
+            </p>
+          </MethodologyCard>
+
+          <SourceBadge source="OSCE / SEACE" confidence="alta" />
+          <VerificationNotice />
+
+          <a
+            href="https://www.osce.gob.pe"
+            target="_blank"
+            rel="noreferrer"
+            className="group flex items-center justify-between rounded-xl bg-amber-700 p-4 text-white shadow-md shadow-amber-200 transition-all hover:bg-amber-800"
+          >
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-white/20 p-2">
+                <FileText className="h-4 w-4" />
+              </div>
+              <span className="text-xs font-black uppercase tracking-widest">Ficha OSCE Integral</span>
             </div>
-            <span className="text-xs font-black uppercase tracking-widest">Ficha OSCE Integral</span>
-          </div>
-          <ExternalLink className="h-4 w-4 opacity-50 group-hover:opacity-100 transition-opacity" />
-        </a>
+            <ExternalLink className="h-4 w-4 opacity-50 group-hover:opacity-100 transition-opacity" />
+          </a>
+        </div>
       )}
     </div>
   );

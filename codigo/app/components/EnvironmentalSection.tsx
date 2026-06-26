@@ -1,6 +1,9 @@
 import React from 'react';
 import { UserMode, CompanyDashboardData } from '@/lib/types';
 import { Leaf, AlertTriangle, Wind, Info, MapPin } from 'lucide-react';
+import MethodologyCard from './MethodologyCard';
+import SourceBadge from './SourceBadge';
+import VerificationNotice from './VerificationNotice';
 
 interface EnvironmentalSectionProps {
   data: CompanyDashboardData['environmental'];
@@ -118,6 +121,26 @@ const EnvironmentalSection: React.FC<EnvironmentalSectionProps> = ({ data, mode 
           ))}
         </div>
       </div>
+
+      <MethodologyCard title="Nota metodológica: fiscalización ambiental">
+        <p className="mb-2">
+          Las sanciones ambientales listadas provienen de resoluciones publicadas por la{' '}
+          <strong>OEFA</strong>. Solo se muestran infracciones con resolución firme o en estado de
+          ejecución; no se incluyen procesos en etapa de investigación reservada.
+        </p>
+        <p className="mb-2">
+          Las lecturas de calidad del aire son aproximaciones basadas en estaciones de monitoreo
+          cercanas a la zona de influencia reportada. No representan mediciones puntuales en cada
+          instalación de la empresa.
+        </p>
+        <p>
+          El monto acumulado de multas es una suma informativa; los cobros efectivos pueden variar
+          por descuentos, apelaciones o convenios de pago.
+        </p>
+      </MethodologyCard>
+
+      <SourceBadge source="OEFA / Sistema de Información Ambiental" confidence="alta" />
+      <VerificationNotice />
     </div>
   );
 };
