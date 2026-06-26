@@ -6,6 +6,48 @@ Buscas una empresa minera por nombre o RUC y obtienes en segundos su historial d
 
 ---
 
+## Stack tecnológico
+
+| Capa | Tecnología |
+|---|---|
+| Frontend + API | Next.js 16 (App Router) |
+| Estilos | Tailwind CSS 4 |
+| Base de datos | Supabase (PostgreSQL) |
+| Deploy | Vercel (serverless) |
+| Lenguaje | TypeScript 5 |
+| Tests | Jest + ts-jest |
+
+## Herramientas de IA utilizadas
+
+| Herramienta | Uso en el proyecto |
+|---|---|
+| Claude Code | Arquitectura, implementación y documentación |
+| Claude (Anthropic) | Diseño de soluciones y revisión de decisiones |
+| ChatGPT | Apoyo en desarrollo y consultas puntuales |
+| Kimi | Consultas y generación de contenido |
+| Codex | Generación de código asistida |
+| Antigravity / Antigravity CLI / Antigravity IDE | Desarrollo asistido por IA |
+
+## Integrantes
+
+| Integrante | Rol |
+|---|---|
+| Diego Sotelo | Backend: entidades, casos de uso, API routes |
+| Ariana Cárdenas | Frontend: buscador, ficha de empresa, mapa |
+| Aaroon Delgado | Infraestructura: conexión Supabase, seed de datos, deploy |
+
+## Documentación adicional
+
+| Documento | Descripción |
+|---|---|
+| [Arquitectura](docs/arquitectura.md) | Capas, flujo de datos y patrón Adapter + Cache + Fallback |
+| [Requerimientos](docs/requerimientos.md) | Casos de uso, requisitos funcionales y no funcionales |
+| [Contrato de API](docs/api-contract.md) | Endpoints, payloads y manejo de errores |
+| [Plan del producto](docs/minerawatch-plan.md) | Resumen ejecutivo, fuentes de datos y score de riesgo |
+| [ADR 001 — Clean Architecture](docs/adr/001-clean-architecture-serverless.md) | Decisión de arquitectura con alternativas consideradas |
+
+---
+
 ## ¿Qué problema resuelve?
 
 El 47% de los proyectos mineros en Perú tienen conflictos sociales activos. Las comunidades afectadas no tienen forma fácil de saber:
