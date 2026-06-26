@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Providers } from "./Providers";
 
 export const metadata: Metadata = {
-  title: "Torneo de Vibecoding PUCP",
-  description: "Proyecto base para el hackathon.",
+  title: "MineraWatch - Vigilancia Minera del Perú",
+  description: "Plataforma de transparencia minera",
 };
 
 export default function RootLayout({
@@ -13,7 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className="min-h-screen antialiased">{children}</body>
+      <body className="flex min-h-screen flex-col antialiased">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
