@@ -12,6 +12,11 @@ CLAUDE.md
 
 # AI documentation that should stay local
 docs/ai-context.md
+docs/ai-context/supabase-setup.md
+
+# Ignore all decisions except for the hybrid data strategy decision
+docs/decisions/*
+docs/decisions/data-extraction-strategy.md
 
 # MCP server configuration contains secrets/connection strings
 mcp-config.json
