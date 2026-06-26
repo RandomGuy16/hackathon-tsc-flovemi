@@ -72,6 +72,11 @@ export type Legal = {
   osceSanctions: LegalSanction[];
   osceFines: LegalFine[];
   tenders: Tender[];
+  sunatStatus?: string;
+  sunatCondition?: string;
+  sunatAddress?: string;
+  sunatLocales?: Array<{ ubigeo: string; lugar: string; direccion: string }>;
+  sunatDebts?: Array<{ amount: number; status: string; authority: string; resolutionsCount: number }>;
 };
 
 export type SocialConflict = {

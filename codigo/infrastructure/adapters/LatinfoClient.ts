@@ -16,7 +16,11 @@ export type LatinfoKybResponse = {
     estado:       string  // 'ACTIVO' | 'BAJA DE OFICIO' | ...
     condicion:    string  // 'HABIDO' | 'NO HABIDO'
     ubigeo:       string
+    domicilio_fiscal?: string
+    locales?: Array<{ ubigeo: string; lugar: string; direccion: string }>
   }
+  domicilio_fiscal?: string
+  locales?: Array<{ ubigeo: string; lugar: string; direccion: string }>
   public_entity: {
     departamento: string  // región en Perú (e.g. 'LA LIBERTAD')
     provincia:    string
@@ -48,7 +52,12 @@ export type LatinfoKybResponse = {
     }>
   }
   debts: {
-    sunat_coactiva: { monto: number; estado: string } | null
+    sunat_coactiva: {
+      monto: number
+      estado: string
+      dependencia?: string
+      nro_resoluciones?: number
+    } | null
   }
   contracts_with_state: {
     total:  number

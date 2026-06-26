@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserMode, CompanyDashboardData } from '@/lib/types';
-import { Scale, FileText, ExternalLink, Gavel, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Scale, FileText, ExternalLink, Gavel, CheckCircle2, AlertCircle, AlertTriangle, MapPin } from 'lucide-react';
 import MethodologyCard from './MethodologyCard';
 import SourceBadge from './SourceBadge';
 import VerificationNotice from './VerificationNotice';
@@ -13,31 +13,44 @@ interface LegalSectionProps {
 const LegalSection: React.FC<LegalSectionProps> = ({ data, mode }) => {
   const hasSanctions = data.osceSanctions.length > 0;
   const totalFines = data.osceFines.reduce((acc, f) => acc + f.amount, 0);
+  const isSunatRisk = data.sunatStatus === 'BAJA DE OFICIO' || data.sunatCondition === 'NO HABIDO';
+  const isHighRisk = hasSanctions || isSunatRisk;
 
   if (mode === 'citizen') {
     return (
       <div className="flex flex-col gap-6 animate-fade-in">
         <div className={`flex items-center gap-4 rounded-3xl p-6 border shadow-sm transition-all ${
-          hasSanctions ? 'bg-rose-50 border-rose-100 shadow-rose-50' : 'bg-emerald-50 border-emerald-100 shadow-emerald-50'
+          isHighRisk ? 'bg-rose-50 border-rose-100 shadow-rose-50' : 'bg-emerald-50 border-emerald-100 shadow-emerald-50'
         }`}>
           <div className={`flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg ${
-            hasSanctions ? 'bg-rose-500 shadow-rose-200' : 'bg-emerald-500 shadow-emerald-200'
+            isHighRisk ? 'bg-rose-500 shadow-rose-200' : 'bg-emerald-500 shadow-emerald-200'
           }`}>
-            {hasSanctions ? <Gavel className="h-8 w-8" /> : <CheckCircle2 className="h-8 w-8" />}
+            {isHighRisk ? <Gavel className="h-8 w-8" /> : <CheckCircle2 className="h-8 w-8" />}
           </div>
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70 text-slate-500">Situación Jurídica</p>
-            <p className={`text-2xl font-outfit font-black leading-none ${hasSanctions ? 'text-rose-700' : 'text-emerald-700'}`}>
-              {hasSanctions ? 'SANCIONADA' : 'EN REGLA'}
+            <p className={`text-2xl font-outfit font-black leading-none ${isHighRisk ? 'text-rose-700' : 'text-emerald-700'}`}>
+              {isHighRisk ? 'ALTO RIESGO' : 'EN REGLA'}
             </p>
           </div>
         </div>
         
         <p className="text-base font-medium text-slate-600 leading-relaxed">
-          {hasSanctions
-            ? 'Esta empresa cuenta con procesos administrativos ante el OSCE que limitan su capacidad de contratación estatal.'
-            : 'No se registran impedimentos legales para que la empresa realice contrataciones con el Estado Peruano.'}
+          {hasSanctions && 'Esta empresa cuenta con procesos administrativos ante el OSCE que limitan su capacidad de contratación estatal. '}
+          {isSunatRisk && `La empresa registra un estado crítico en SUNAT: ${data.sunatStatus} y condición de ${data.sunatCondition}. `}
+          {!isHighRisk && 'No se registran impedimentos legales para que la empresa realice contrataciones con el Estado Peruano.'}
         </p>
+
+        {data.sunatDebts && data.sunatDebts.length > 0 && (
+          <div className="rounded-xl border border-rose-100 bg-rose-50 p-3">
+            <p className="text-xs font-bold text-rose-800 uppercase tracking-wider">Deuda Coactiva SUNAT</p>
+            <p className="text-xl font-black text-rose-700">
+              S/ {data.sunatDebts.reduce((sum, d) => sum + d.amount, 0).toLocaleString('es-PE')}
+            </p>
+            <p className="text-xs text-rose-600 mt-0.5">registrado en cobranza coactiva</p>
+          </div>
+        )}
+
         {totalFines > 0 && (
           <div className="rounded-xl border border-amber-100 bg-amber-50 p-3">
             <p className="text-xs font-bold text-amber-800 uppercase tracking-wider">Multas OSCE</p>
@@ -59,6 +72,57 @@ const LegalSection: React.FC<LegalSectionProps> = ({ data, mode }) => {
   return (
     <div className="flex flex-col gap-8 animate-fade-in">
       <div className="space-y-6">
+        {/* Alerta de SUNAT */}
+        {data.sunatStatus && (
+          <div className={`p-5 rounded-2xl border ${
+            isSunatRisk
+              ? 'bg-rose-50/50 border-rose-150 text-rose-900 shadow-sm'
+              : 'bg-emerald-50/50 border-emerald-100 text-emerald-900'
+          }`}>
+            <div className="flex items-center gap-3">
+              <div className={`flex h-10 w-10 items-center justify-center rounded-xl text-white ${
+                isSunatRisk ? 'bg-rose-500 shadow-sm' : 'bg-emerald-500 shadow-sm'
+              }`}>
+                {isSunatRisk ? <AlertTriangle className="h-5 w-5" /> : <CheckCircle2 className="h-5 w-5" />}
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Identidad SUNAT</p>
+                <p className="text-sm font-bold font-outfit uppercase">
+                  {data.sunatStatus} • {data.sunatCondition}
+                </p>
+              </div>
+            </div>
+            {data.sunatAddress && (
+              <p className="mt-3 text-xs text-slate-500 font-medium">
+                <span className="font-bold text-slate-700">Domicilio Fiscal:</span> {data.sunatAddress}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Deuda Coactiva SUNAT */}
+        {data.sunatDebts && data.sunatDebts.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">
+              <AlertCircle className="h-3 w-3 text-rose-500" /> Cobranza Coactiva SUNAT
+            </div>
+            <div className="grid gap-3">
+              {data.sunatDebts.map((d, i) => (
+                <div key={i} className="rounded-2xl border border-rose-100 bg-rose-50/50 p-5 shadow-sm">
+                  <div className="flex justify-between items-center font-bold text-rose-900 mb-2">
+                    <span className="text-xl font-outfit font-black">S/ {d.amount.toLocaleString()}</span>
+                    <span className="text-[9px] uppercase bg-rose-200 text-rose-800 px-3 py-1 rounded-full font-black">{d.status}</span>
+                  </div>
+                  <div className="text-xs text-slate-500 font-medium flex justify-between pt-2 border-t border-rose-100">
+                    <span>Dependencia: {d.authority}</span>
+                    <span>Resoluciones: {d.resolutionsCount}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div>
           <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">
              <Scale className="h-3 w-3" /> Impedimentos OSCE
@@ -110,7 +174,7 @@ const LegalSection: React.FC<LegalSectionProps> = ({ data, mode }) => {
           </div>
           {data.tenders.length === 0 ? (
             <div className="py-8 text-center rounded-2xl border-2 border-dashed border-slate-200">
-               <p className="text-xs font-bold text-slate-400">Sin procesos vigentes.</p>
+               <p className="text-xs font-bold text-slate-400">Sin licitaciones encontradas por este RUC.</p>
             </div>
           ) : (
             <div className="grid gap-3">
@@ -128,11 +192,29 @@ const LegalSection: React.FC<LegalSectionProps> = ({ data, mode }) => {
             </div>
           )}
         </div>
+
+        {/* Establecimientos Anexos */}
+        {data.sunatLocales && data.sunatLocales.length > 0 && (
+          <div>
+            <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Establecimientos Anexos ({data.sunatLocales.length})</p>
+            <div className="grid gap-3 md:grid-cols-2">
+              {data.sunatLocales.map((loc, idx) => (
+                <div key={idx} className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+                  <span className="font-bold text-slate-700 block text-xs mb-1 uppercase tracking-wide flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                    {loc.lugar}
+                  </span>
+                  <span className="text-slate-500 text-[11px] leading-relaxed font-medium block mt-1">{loc.direccion}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {mode === 'journalist' && (
         <div className="flex flex-col gap-4">
-          <MethodologyCard title="Nota metodológica: fiscalización legal">
+          <MethodologyCard title="Nota metodológica: fiscalización legal y tributaria">
             <p className="mb-2">
               Los impedimentos y multas administrativas se obtienen del{' '}
               <strong>OSCE</strong> a través del Registro Nacional de Proveedores Sancionados. Un
@@ -140,18 +222,18 @@ const LegalSection: React.FC<LegalSectionProps> = ({ data, mode }) => {
               económica que no necesariamente genera inhabilitación.
             </p>
             <p className="mb-2">
-              Las licitaciones recientes son procesos en los que la empresa ha participado según el
-              SEACE. El monto mostrado es el presupuesto oficial del proceso, no el monto efectivamente
-              contratado.
+              Los datos tributarios, estado de actividad, condición de domicilio, establecimientos anexos
+              y deudas coactivas se obtienen de la consulta pública de <strong>SUNAT</strong>. Una deuda coactiva
+              exigible indica un proceso de cobranza forzosa en curso.
             </p>
             <p>
-              Antes de afirmar que una empresa está inhabilitada para contratar con el Estado,
-              verifique la vigencia exacta del impedimento en el portal del OSCE, ya que las
-              sanciones pueden estar apeladas o extinguidas.
+              Antes de afirmar que una empresa está inhabilitada o es evasora, verifique el estado
+              vigente en los portales oficiales de OSCE y SUNAT, ya que los montos de deudas o sanciones
+              pueden estar bajo apelación administrativa o judicial.
             </p>
           </MethodologyCard>
 
-          <SourceBadge source="OSCE / SEACE" confidence="alta" />
+          <SourceBadge source="OSCE / SUNAT" confidence="alta" />
           <VerificationNotice />
 
           <a

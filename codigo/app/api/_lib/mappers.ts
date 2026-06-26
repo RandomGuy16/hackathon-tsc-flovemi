@@ -71,6 +71,16 @@ export function mapFichaEmpresaResponse(ficha: FichaEmpresa) {
         amount:   l.monto ?? null,
         currency: l.moneda ?? null,
       })),
+      sunatStatus: ficha.empresa.estado,
+      sunatCondition: ficha.empresa.condicion ?? 'HABIDO',
+      sunatAddress: ficha.empresa.domicilioFiscal ?? '',
+      sunatLocales: ficha.empresa.locales ?? [],
+      sunatDebts: (ficha.deudas ?? []).map(d => ({
+        amount: d.monto,
+        status: d.estado,
+        authority: d.dependencia || 'SUNAT',
+        resolutionsCount: d.nroResoluciones || 1
+      }))
     },
     social: {
       activeConflicts: ficha.conflictos.filter(c => c.estado === 'activo').length,
