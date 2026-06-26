@@ -11,6 +11,33 @@ import {
 
 const FORCE_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS === "true";
 
+function isDashboardEmpty(dashboard: CompanyDashboard): boolean {
+  const { safety, environmental, legal, social, investment, miningProjects, illegalMining } = dashboard;
+
+  const hasSafetyData =
+    (safety?.fatalAccidents ?? 0) > 0 || (safety?.occupationalDiseases ?? 0) > 0;
+  const hasEnvironmentalData =
+    (environmental?.sanctionsCount ?? 0) > 0 || (environmental?.airQuality?.length ?? 0) > 0;
+  const hasLegalData =
+    (legal?.osceSanctions?.length ?? 0) > 0 ||
+    (legal?.osceFines?.length ?? 0) > 0 ||
+    (legal?.tenders?.length ?? 0) > 0;
+  const hasSocialData = (social?.activeConflicts ?? 0) > 0;
+  const hasInvestmentData = (investment?.publicProjects?.length ?? 0) > 0;
+  const hasMiningProjects = (miningProjects?.length ?? 0) > 0;
+  const hasIllegalMining = (illegalMining?.length ?? 0) > 0;
+
+  return (
+    !hasSafetyData &&
+    !hasEnvironmentalData &&
+    !hasLegalData &&
+    !hasSocialData &&
+    !hasInvestmentData &&
+    !hasMiningProjects &&
+    !hasIllegalMining
+  );
+}
+
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
   if (!response.ok) {
@@ -51,7 +78,7 @@ export async function getCompanyDashboard(
   try {
     const result = await fetchJson<CompanyDashboard>(`/api/companies/${ruc}/dashboard`);
     // Fallback a mocks si el dashboard real está vacío o incompleto
-    if (!result?.razonSocial) {
+    if (!result?.razonSocial || isDashboardEmpty(result)) {
       return { ...mockCompanyDashboard, ruc };
     }
     return result;
