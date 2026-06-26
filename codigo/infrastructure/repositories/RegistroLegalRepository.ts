@@ -7,62 +7,69 @@ export class RegistroLegalRepository implements IRegistroLegalRepository {
   private latinfo = new LatinfoClient()
 
   async obtenerPorRuc(ruc: string): Promise<RegistroLegal | null> {
-    // Todas las llamadas OSCE en paralelo — si alguna falla, las demás siguen
-    const [sanctioned, fines, penalidades, licitaciones] = await Promise.allSettled([
-      this.latinfo.obtenerSancionadoOsce(ruc),
-      this.latinfo.obtenerMultasOsce(ruc),
-      this.latinfo.obtenerPenalidadesOsce(ruc),
-      this.latinfo.obtenerLicitaciones(ruc),
-    ])
+    // Intentar leer de latinfo_cache (guardado por EmpresaRepository.obtenerPorRuc)
+    const supabase = await createClient()
+    const { data: cache } = await supabase
+      .from('latinfo_cache')
+      .select('payload, fetched_at')
+      .eq('ruc', ruc)
+      .single()
 
-    // Cachear resultado agregado
-    try {
-      const supabase = await createClient()
-      await supabase.from('latinfo_cache').upsert({
-        ruc,
-        payload: {
-          osce_sanctioned: sanctioned.status === 'fulfilled' ? sanctioned.value : null,
-          osce_fines: fines.status === 'fulfilled' ? fines.value : null,
-          osce_penalidades: penalidades.status === 'fulfilled' ? penalidades.value : null,
-          licitaciones: licitaciones.status === 'fulfilled' ? licitaciones.value : null,
-        },
-        fetched_at: new Date().toISOString(),
-        source_status: 'ok',
-      })
-    } catch { /* cache no crítico */ }
+    let kyb: Awaited<ReturnType<LatinfoClient['obtenerKyb']>> | null = null
+
+    if (cache?.payload) {
+      kyb = cache.payload as typeof kyb
+    } else {
+      // Cache miss — llamar a la API directamente
+      try {
+        kyb = await this.latinfo.obtenerKyb(ruc)
+      } catch {
+        return null
+      }
+    }
+
+    if (!kyb) return null
+
+    const sanctions = kyb.sanctions
+    const contracts = kyb.contracts_with_state
+
+    // osce_fines viene como objeto único (multa más reciente), no array
+    const multasOsce = sanctions.osce_fines
+      ? [{
+          autoridad: 'OSCE',
+          fecha: sanctions.osce_fines.date_start ?? '',
+          monto: parseFloat(sanctions.osce_fines.amount ?? '0'),
+          moneda: 'PEN',
+        }]
+      : []
+
+    const penalidades = (sanctions.osce_penalidades ?? []).map(p => ({
+      autoridad: p.entidad_contratante ?? 'OSCE',
+      fecha: p.fecha_penalidad ?? '',
+      descripcion: p.descripcion ?? '',
+    }))
+
+    const licitaciones = (contracts?.sample ?? []).map(c => ({
+      codigo: c.tender?.id ?? c.id,
+      titulo: c.tender?.title ?? '',
+      fecha: c.date ?? '',
+      monto: c.tender?.value?.amount ?? null,
+      moneda: c.tender?.value?.currency ?? null,
+    }))
 
     return {
       empresaRuc: ruc,
-      impedidaDeContratar:
-        sanctioned.status === 'fulfilled' ? (sanctioned.value.inhabilitado ?? false) : false,
-      sancionesOsce: [], // OSCE no tiene endpoint de sanciones independiente en latinfo.dev
-      multasOsce:
-        fines.status === 'fulfilled'
-          ? (fines.value.data ?? []).map(f => ({
-              autoridad: f.autoridad ?? 'OSCE',
-              fecha: f.fecha,
-              monto: f.monto,
-              moneda: f.moneda,
-            }))
-          : [],
-      penalidades:
-        penalidades.status === 'fulfilled'
-          ? (penalidades.value.data ?? []).map(p => ({
-              autoridad: p.autoridad ?? 'OSCE',
-              fecha: p.fecha,
-              descripcion: p.descripcion,
-            }))
-          : [],
-      licitaciones:
-        licitaciones.status === 'fulfilled'
-          ? (licitaciones.value.data ?? []).map(l => ({
-              codigo: l.codigo,
-              titulo: l.titulo,
-              fecha: l.fecha,
-              monto: l.monto,
-              moneda: l.moneda,
-            }))
-          : [],
+      impedidaDeContratar: sanctions.osce_sanctioned !== null,
+      sancionesOsce: sanctions.osce_sanctioned
+        ? [{
+            autoridad: 'OSCE',
+            fecha: sanctions.osce_sanctioned.date_start ?? '',
+            descripcion: sanctions.osce_sanctioned.detail ?? '',
+          }]
+        : [],
+      multasOsce,
+      penalidades,
+      licitaciones,
     }
   }
 }

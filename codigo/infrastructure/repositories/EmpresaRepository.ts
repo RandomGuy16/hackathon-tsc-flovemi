@@ -15,15 +15,15 @@ export class EmpresaRepository implements IEmpresaRepository {
       region: r.region ?? '',
       provincia: r.provincia ?? null,
       distrito: r.distrito ?? null,
-      latitud: r.lat ?? null,
-      longitud: r.lng ?? null,
+      latitud: null,
+      longitud: null,
     }))
   }
 
   async obtenerPorRuc(ruc: string): Promise<Empresa> {
     const supabase = await createClient()
 
-    // Primero intentar cache local en Supabase
+    // Primero buscar en cache local (companies table)
     const { data: cached } = await supabase
       .from('companies')
       .select('*')
@@ -32,29 +32,40 @@ export class EmpresaRepository implements IEmpresaRepository {
 
     if (cached) return this.mapRow(cached)
 
-    // Si no existe en cache, consultar latinfo.dev
-    const raw = await this.latinfo.obtenerPorRuc(ruc)
+    // Llamar a latinfo.dev /pe/kyb/{ruc}
+    const kyb = await this.latinfo.obtenerKyb(ruc)
 
-    // Persistir en companies para consultas futuras
-    await supabase.from('companies').upsert({
-      ruc: raw.ruc,
-      razon_social: raw.razon_social,
-      region: raw.region,
-      province: raw.provincia,
-      district: raw.distrito,
-      latitude: raw.lat,
-      longitude: raw.lng,
-    })
+    const region = kyb.public_entity?.departamento ?? ''
+    const provincia = kyb.public_entity?.provincia ?? null
+    const distrito = kyb.public_entity?.distrito ?? null
+    const estadoActiva = kyb.identity.estado?.toUpperCase() === 'ACTIVO'
+
+    // Persistir en Supabase y en latinfo_cache
+    await Promise.all([
+      supabase.from('companies').upsert({
+        ruc: kyb.ruc,
+        razon_social: kyb.identity.razon_social,
+        region,
+        province: provincia,
+        district: distrito,
+      }),
+      supabase.from('latinfo_cache').upsert({
+        ruc: kyb.ruc,
+        payload: kyb as unknown as Record<string, unknown>,
+        fetched_at: new Date().toISOString(),
+        source_status: 'ok',
+      }),
+    ])
 
     return {
-      ruc: raw.ruc,
-      razonSocial: raw.razon_social,
-      estado: raw.estado?.toLowerCase().includes('activo') ? 'activa' : 'inactiva',
-      region: raw.region ?? '',
-      provincia: raw.provincia ?? null,
-      distrito: raw.distrito ?? null,
-      latitud: raw.lat ?? null,
-      longitud: raw.lng ?? null,
+      ruc: kyb.ruc,
+      razonSocial: kyb.identity.razon_social,
+      estado: estadoActiva ? 'activa' : 'inactiva',
+      region,
+      provincia,
+      distrito,
+      latitud: null,
+      longitud: null,
     }
   }
 
@@ -63,7 +74,7 @@ export class EmpresaRepository implements IEmpresaRepository {
     const { data } = await supabase
       .from('companies')
       .select('*')
-      .eq('region', region)
+      .ilike('region', region)
     return (data ?? []).map(r => this.mapRow(r))
   }
 
