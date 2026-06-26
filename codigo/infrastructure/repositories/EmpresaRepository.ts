@@ -25,7 +25,11 @@ export class EmpresaRepository implements IEmpresaRepository {
   async obtenerPorRuc(ruc: string): Promise<Empresa> {
     const supabase = await createClient()
 
-    // 1. Intentar desde companies (ya persistida previamente)
+    // 1. Intentar desde la cache completa latinfo_cache
+    const kyb = await leerCacheKyb(supabase, ruc)
+    if (kyb) return mapKybEmpresa(kyb)
+
+    // 2. Si no hay cache, intentar desde companies
     const { data: cached } = await supabase
       .from('companies')
       .select('*')
@@ -34,10 +38,10 @@ export class EmpresaRepository implements IEmpresaRepository {
 
     if (cached) return mapRowEmpresa(cached)
 
-    // 2. Llamar a latinfo.dev y persistir resultado
-    const kyb = await this.latinfo.obtenerKyb(ruc)
-    await persistirKyb(supabase, kyb)
-    return mapKybEmpresa(kyb)
+    // 3. Llamar a latinfo.dev y persistir resultado
+    const liveKyb = await this.latinfo.obtenerKyb(ruc)
+    await persistirKyb(supabase, liveKyb)
+    return mapKybEmpresa(liveKyb)
   }
 
   async buscarPorRegion(region: string): Promise<Empresa[]> {
@@ -56,12 +60,15 @@ export function mapRowEmpresa(row: Record<string, unknown>): Empresa {
   return {
     ruc:        row.ruc       as string,
     razonSocial: (row.razon_social as string) ?? '',
-    estado:     'activa',
+    estado:     (row.estado as string) ?? 'activa',
     region:     (row.region   as string) ?? '',
     provincia:  (row.province as string) ?? null,
     distrito:   (row.district as string) ?? null,
     latitud:    (row.latitude as number) ?? null,
     longitud:   (row.longitude as number) ?? null,
+    condicion:  (row.condicion as string) ?? null,
+    domicilioFiscal: (row.domicilio_fiscal as string) ?? null,
+    locales:    (row.locales as Empresa['locales']) ?? null,
   }
 }
 
@@ -69,12 +76,15 @@ export function mapKybEmpresa(kyb: LatinfoKybResponse): Empresa {
   return {
     ruc:        kyb.ruc,
     razonSocial: kyb.identity.razon_social,
-    estado:     kyb.identity.estado?.toUpperCase() === 'ACTIVO' ? 'activa' : 'inactiva',
+    estado:     kyb.identity.estado || 'INACTIVA',
     region:     kyb.public_entity?.departamento ?? '',
     provincia:  kyb.public_entity?.provincia    ?? null,
     distrito:   kyb.public_entity?.distrito     ?? null,
     latitud:    null,
     longitud:   null,
+    condicion:  kyb.identity.condicion || null,
+    domicilioFiscal: kyb.identity.domicilio_fiscal || kyb.domicilio_fiscal || null,
+    locales:    kyb.identity.locales || kyb.locales || null,
   }
 }
 
@@ -90,13 +100,13 @@ export async function persistirKyb(
       region:       kyb.public_entity?.departamento,
       province:     kyb.public_entity?.provincia,
       district:     kyb.public_entity?.distrito,
-    }),
+    }, { onConflict: 'ruc' }),
     supabase.from('latinfo_cache').upsert({
       ruc:          kyb.ruc,
       payload:      kyb as unknown as Record<string, unknown>,
       fetched_at:   new Date().toISOString(),
       source_status: 'ok',
-    }),
+    }, { onConflict: 'ruc' }),
   ])
 }
 

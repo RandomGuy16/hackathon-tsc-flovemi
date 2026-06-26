@@ -28,6 +28,8 @@ export class DeudaRepository implements IDeudaRepository {
       empresaRuc: ruc,
       monto:      coactiva.monto,
       estado:     coactiva.estado ?? 'PENDIENTE',
+      dependencia: coactiva.dependencia || null,
+      nroResoluciones: coactiva.nro_resoluciones || null,
     }]
   }
 }
