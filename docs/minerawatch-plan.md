@@ -239,20 +239,40 @@ air_quality (
 
 ## 11. Score de riesgo minero
 
-Se calcula a partir de reglas simples por eje:
+Score final = (seguridad × 40%) + (legalidad × 35%) + (impacto × 25%)
 
-| Eje | Peso | Regla |
+**Seguridad (40%) — MINEM vía Supabase**
+
+| Dato | Umbral | Puntos |
 |---|---|---|
-| Seguridad | 25% | +25 si fatalAccidents > 0 |
-| Ambiental | 25% | +25 si sanctionsCount > 0 |
-| Legal | 20% | +20 si tiene sanciones/multas OSCE |
-| Conflicto social | 20% | +20 si activeConflicts > 0 |
-| Inversión pública | 10% | +10 si hay obras sin avance |
+| Accidentes mortales | 1–2 | +30 |
+| Accidentes mortales | 3 o más | +50 |
+| Accidentes incapacitantes | 3–9 | +15 |
+| Accidentes incapacitantes | 10 o más | +30 |
+
+**Legalidad (35%) — latinfo.dev**
+
+| Dato | Endpoint | Umbral | Puntos |
+|---|---|---|---|
+| Sanciones OEFA firmes | `/pe/oefa/sanctions/ruc/{ruc}` | 1–2 | +20 |
+| Sanciones OEFA firmes | `/pe/oefa/sanctions/ruc/{ruc}` | 3 o más | +40 |
+| Multas OSCE (monto) | `/pe/osce/fines/ruc/{ruc}` | S/ 1–100k | +15 |
+| Multas OSCE (monto) | `/pe/osce/fines/ruc/{ruc}` | S/ +100k | +30 |
+| Penalidades OSCE | `/pe/osce/penalidades/ruc/{ruc}` | cualquiera | +15 |
+| Impedida de contratar | `/pe/osce/sanctioned/ruc/{ruc}` | sí | +30 |
+| Deuda coactiva SUNAT activa | `/pe/sunat/coactiva/ruc/{ruc}` | cualquiera | +20 |
+
+**Impacto social (25%) — datosabiertos.gob.pe PNDA**
+
+| Dato | Umbral | Puntos |
+|---|---|---|
+| Conflictos sociales activos en la región | 1 | +30 |
+| Conflictos sociales activos en la región | 2 o más | +60 |
 
 **Niveles:**
-- 0-30: Bajo (🟢)
-- 31-60: Medio (🟡)
-- 61-100: Alto (🔴)
+- 0–30: Bajo
+- 31–60: Medio
+- 61–100: Alto
 
 ## 12. Plan de implementación por roles
 
