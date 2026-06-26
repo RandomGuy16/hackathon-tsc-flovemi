@@ -16,6 +16,7 @@ import SocialSection from '@/app/components/SocialSection';
 import InvestmentSection from '@/app/components/InvestmentSection';
 import MiningProjectsSection from '@/app/components/MiningProjectsSection';
 import IllegalMiningSection from '@/app/components/IllegalMiningSection';
+import DataSourceBanner from '@/app/components/DataSourceBanner';
 import {
   ShieldCheck, Leaf, Scale, Users, TrendingUp, Pickaxe, Ban,
   Map as MapIcon, RefreshCw, ArrowLeft, Share2, Download,
@@ -161,6 +162,12 @@ export default function CompanyDashboardPage() {
             )}
           </div>
         </div>
+
+        {mode === 'journalist' && (
+          <div className="mb-10">
+            <DataSourceBanner lastSyncedAt={data.summary.lastSyncedAt ?? undefined} />
+          </div>
+        )}
 
         {/* 7 Sections Grid */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">

@@ -1,6 +1,9 @@
 import React from 'react';
 import { UserMode, CompanyDashboardData } from '@/lib/types';
 import { Users, MessageCircle, MapPin, AlertCircle, Calendar } from 'lucide-react';
+import MethodologyCard from './MethodologyCard';
+import SourceBadge from './SourceBadge';
+import VerificationNotice from './VerificationNotice';
 
 interface SocialSectionProps {
   data: CompanyDashboardData['social'];
@@ -105,6 +108,27 @@ const SocialSection: React.FC<SocialSectionProps> = ({ data, mode }) => {
            </div>
         )}
       </div>
+
+      <MethodologyCard title="Nota metodológica: conflictividad social">
+        <p className="mb-2">
+          Los conflictos sociales listados provienen principalmente de los reportes de la{' '}
+          <strong>Defensoría del Pueblo</strong> y de registros de violencia social relacionados con
+          actividades extractivas. El conteo refleja casos documentados públicamente.
+        </p>
+        <p className="mb-2">
+          La ausencia de conflictos reportados no significa necesariamente ausencia de tensión
+          social. Muchos conflictos locales no llegan a los registros oficiales por falta de
+          visibilidad institucional o por resolución previa a la reporte.
+        </p>
+        <p>
+          Para contrastar la información se recomienda consultar comunicados de las comunidades,
+          documentos de las municipalidades distritales/provinciales y reportes de organizaciones de
+          la sociedad civil.
+        </p>
+      </MethodologyCard>
+
+      <SourceBadge source="Defensoría del Pueblo / Ombuds" confidence="media" />
+      <VerificationNotice />
     </div>
   );
 };

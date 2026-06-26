@@ -1,6 +1,9 @@
 import React from 'react';
 import { UserMode, CompanyDashboardData } from '@/lib/types';
 import { ShieldAlert, Info, Skull, Thermometer } from 'lucide-react';
+import MethodologyCard from './MethodologyCard';
+import SourceBadge from './SourceBadge';
+import VerificationNotice from './VerificationNotice';
 
 interface SafetySectionProps {
   data: CompanyDashboardData['safety'];
@@ -85,14 +88,24 @@ const SafetySection: React.FC<SafetySectionProps> = ({ data, mode }) => {
       )}
 
       {mode === 'journalist' && (
-        <div className="flex flex-col gap-3">
-          <div className="h-px bg-slate-100 w-full" />
-          <div className="flex items-start gap-2.5">
-            <Info className="h-4 w-4 text-slate-400 mt-0.5 flex-shrink-0" />
-            <p className="text-[11px] text-slate-500 leading-relaxed">
-              Estadísticas proyectadas según el último cierre trimestral del {data.source}. Sujetos a auditoría por OSINERGMIN.
+        <div className="flex flex-col gap-4">
+          <MethodologyCard title="Nota metodológica: seguridad laboral">
+            <p className="mb-2">
+              Los indicadores de seguridad provienen de los registros de incidentes reportados al{' '}
+              <strong>MINEM</strong> por las empresas mineras. El conteo de accidentes mortales y
+              enfermedades ocupacionales refleja lo declarado ante la autoridad; no incluye eventos
+              no reportados o en proceso de investigación.
             </p>
-          </div>
+            <p>
+              Estas cifras sirven para identificar patrones de riesgo, pero no determinan por sí
+              solas responsabilidades legales. Para una investigación periodística es recomendable
+              cruzar con informes de SUNAFIL, informes de la empresa y testimonios directos.
+            </p>
+          </MethodologyCard>
+
+          <SourceBadge source={data.source} confidence="media" />
+          <VerificationNotice />
+
           <button className="w-full rounded-lg bg-amber-50 py-2.5 text-xs font-semibold uppercase tracking-wider text-amber-700 hover:bg-amber-100 transition-colors cursor-pointer">
             Descargar Dataset Seguridad
           </button>
