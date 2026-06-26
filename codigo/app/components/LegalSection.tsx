@@ -30,6 +30,20 @@ const LegalSection: React.FC<LegalSectionProps> = ({ data, mode }) => {
             ? 'Esta empresa tiene prohibido contratar con el Estado por faltas legales graves.'
             : 'Esta empresa puede contratar con el Estado sin problemas legales registrados.'}
         </p>
+        {totalFines > 0 && (
+          <div className="rounded-xl border border-amber-100 bg-amber-50 p-3">
+            <p className="text-xs font-bold text-amber-800 uppercase tracking-wider">Multas OSCE</p>
+            <p className="text-xl font-black text-amber-700">S/ {totalFines.toLocaleString()}</p>
+            <p className="text-xs text-amber-600 mt-0.5">en multas registradas ante el Estado</p>
+          </div>
+        )}
+        {data.tenders.length > 0 && (
+          <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Contratos con el Estado</p>
+            <p className="text-xl font-black text-slate-800">{data.tenders.length}</p>
+            <p className="text-xs text-slate-500 mt-0.5">licitaciones públicas recientes</p>
+          </div>
+        )}
       </div>
     );
   }
