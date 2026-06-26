@@ -122,7 +122,36 @@ Devuelve la ficha de riesgo completa de una empresa minera.
       }
     ],
     "totalBudget": 5000000
-  }
+  },
+  "miningProjects": [
+    {
+      "id": "proj-001",
+      "name": "Proyecto Andino",
+      "status": "de_acuerdo",
+      "location": "La Libertad",
+      "process": "exploracion",
+      "mineralType": "cobre",
+      "estimatedMonthsRemaining": 18
+    },
+    {
+      "id": "proj-002",
+      "name": "Proyecto Norte",
+      "status": "paralizado",
+      "location": "La Libertad",
+      "process": "cierre",
+      "mineralType": "oro",
+      "estimatedMonthsRemaining": null
+    }
+  ],
+  "illegalMining": [
+    {
+      "id": "illegal-001",
+      "location": "Virú",
+      "reason": "Sin permiso de extracción en zona de amortiguamiento",
+      "regularizationStatus": "en_tramite",
+      "detectedAt": "2024-08-15"
+    }
+  ]
 }
 ```
 
@@ -174,6 +203,25 @@ Devuelve un resumen territorial para mostrar en el mapa y rankings.
       "budget": 5000000,
       "latitude": -8.641,
       "longitude": -78.748
+    }
+  ],
+  "miningProjects": [
+    {
+      "id": "proj-001",
+      "name": "Proyecto Andino",
+      "status": "de_acuerdo",
+      "location": "La Libertad",
+      "process": "exploracion",
+      "mineralType": "cobre",
+      "estimatedMonthsRemaining": 18
+    }
+  ],
+  "illegalMining": [
+    {
+      "id": "illegal-001",
+      "location": "Virú",
+      "reason": "Sin permiso de extracción",
+      "regularizationStatus": "en_tramite"
     }
   ]
 }

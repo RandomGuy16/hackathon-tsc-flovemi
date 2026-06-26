@@ -27,6 +27,8 @@ Una plataforma web que, por empresa minera o zona geográfica, muestra una ficha
 | **🔴 LEGAL** | Sanciones OSCE, multas, licitaciones públicas | latinfo.dev |
 | **🟠 CONFLICTO SOCIAL** | Conflictos sociales activos por zona | PCM / PNDA |
 | **🟢 INVERSIÓN PÚBLICA** | Obras públicas, presupuesto ejecutado | INFOBRAS / MEF |
+| **⚫ PROYECTOS MINEROS** | Proyectos de acuerdo / paralizados / en trámite, mineral, proceso, tiempo restante | PNDA / datasets mineros |
+| **🔵 MINERÍA ILEGAL** | Motivo de ilegalidad, estado de regularización | PNDA / fiscalización |
 
 Además, genera un **score de riesgo minero** que resume en lenguaje ciudadano el nivel de alerta.
 
@@ -74,7 +76,9 @@ domain/
 │     ├── EnvironmentalRecord.ts
 │     ├── LegalRecord.ts
 │     ├── SocialConflict.ts
-│     └── InfrastructureInvestment.ts
+│     ├── InfrastructureInvestment.ts
+│     ├── MiningProject.ts
+│     └── IllegalMiningRecord.ts
 └── usecases/
       ├── GetCompanyDashboard.ts
       ├── SearchCompanies.ts
@@ -89,7 +93,9 @@ infrastructure/
       ├── PNDAAdapter.ts
       ├── InfobrasAdapter.ts
       ├── OEFAAirAdapter.ts
-      └── MinemAdapter.ts
+      ├── MinemAdapter.ts
+      ├── MiningProjectAdapter.ts
+      └── IllegalMiningAdapter.ts
 ```
 
 ### Patrón: Adapter + Cache + Fallback
@@ -158,7 +164,9 @@ Cada adapter:
   "investment": {
     "publicProjects": [],
     "totalBudget": 5000000
-  }
+  },
+  "miningProjects": [],
+  "illegalMining": []
 }
 ```
 
@@ -168,7 +176,9 @@ Cada adapter:
 {
   "companies": [],
   "conflicts": [],
-  "projects": []
+  "projects": [],
+  "miningProjects": [],
+  "illegalMining": []
 }
 ```
 
@@ -235,6 +245,37 @@ air_quality (
   value float,
   unit text
 );
+
+mining_projects (
+  id uuid primary key default gen_random_uuid(),
+  company_ruc text references companies(ruc),
+  name text,
+  status text,
+  region text,
+  province text,
+  district text,
+  process text,
+  mineral_type text,
+  estimated_months_remaining int,
+  latitude float,
+  longitude float,
+  created_at timestamp default now()
+);
+
+illegal_mining (
+  id uuid primary key default gen_random_uuid(),
+  company_ruc text references companies(ruc),
+  location text,
+  region text,
+  province text,
+  district text,
+  reason text,
+  regularization_status text,
+  detected_at date,
+  latitude float,
+  longitude float,
+  created_at timestamp default now()
+);
 ```
 
 ## 11. Score de riesgo minero
@@ -277,8 +318,8 @@ Score final = (seguridad × 40%) + (legalidad × 35%) + (impacto × 25%)
 ## 12. Plan de implementación por roles
 
 ### Persona A — Dominio + Backend
-- Entidades y casos de uso.
-- Adapters (`LatinfoAdapter`, `PNDAAdapter`, etc.).
+- Entidades y casos de uso (incluyendo `MiningProject` e `IllegalMiningRecord`).
+- Adapters (`LatinfoAdapter`, `PNDAAdapter`, `MiningProjectAdapter`, `IllegalMiningAdapter`, etc.).
 - API routes.
 
 ### Persona B — Frontend
@@ -288,8 +329,8 @@ Score final = (seguridad × 40%) + (legalidad × 35%) + (impacto × 25%)
 - Mockea respuestas mientras A termina.
 
 ### Persona C — Infra + Data + Tests
-- Configurar Supabase y tablas.
-- Descargar CSVs de PNDA, INFOBRAS, MINEM.
+- Configurar Supabase y tablas (incluyendo `mining_projects` e `illegal_mining`).
+- Descargar CSVs de PNDA, INFOBRAS, MINEM y datasets de proyectos mineros / ilegalidad.
 - Script de seed.
 - Tests con Jest.
 - Deploys incrementales.

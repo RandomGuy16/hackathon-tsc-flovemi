@@ -78,10 +78,11 @@ flowchart TD
         A3[GET /api/regions/:region]
     end
 
-    subgraph Domain
+     subgraph Domain
         UC1[BuscarEmpresa]
         UC2[ObtenerFichaEmpresa]
         SC[CalcularScoreRiesgo]
+        EN[MiningProject, IllegalMiningRecord]
     end
 
     subgraph Fuentes externas
@@ -116,6 +117,8 @@ flowchart TD
 | RF-05 | Las sanciones OEFA solo suman al score si su estado es **firme** (no apelada ni impugnada) |
 | RF-06 | El sistema muestra un resumen territorial por región con empresas, conflictos y obras públicas |
 | RF-07 | Las respuestas de APIs externas se cachean en Supabase para garantizar disponibilidad |
+| RF-08 | El sistema muestra proyectos mineros por empresa o región, incluyendo estado (de acuerdo/paralizado/en trámite/cerrado), proceso, tipo de mineral y tiempo estimado restante |
+| RF-09 | El sistema muestra registros de minería ilegal por empresa o región, incluyendo el motivo de ilegalidad y el estado de regularización |
 
 ---
 

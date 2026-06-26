@@ -7,6 +7,7 @@
 .clinerules
 .windsurfrules
 CLAUDE.md
+KIMI.md
 .claude/
 .cline/
 
@@ -18,6 +19,8 @@ mcp-config.json
 mcp-config.local.json
 claude_mcp_config.json
 cline_mcp_config.json
+cursor_mcp_config.json
+windsurf_mcp_config.json
 
 # macOS / OS metadata
 .DS_Store
