@@ -9,13 +9,14 @@ export class EmpresaRepository implements IEmpresaRepository {
 
   async buscar(termino: string): Promise<Empresa[]> {
     const res = await this.latinfo.buscarPorNombre(termino)
-    return (res.data ?? []).map(r => ({
-      ruc:        r.ruc,
+    // Respuesta real: array directo con {id (RUC), razon_social, estado}
+    return (Array.isArray(res) ? res : []).map(r => ({
+      ruc:        r.id,
       razonSocial: r.razon_social,
-      estado:     'activa',
-      region:     r.region     ?? '',
-      provincia:  r.provincia  ?? null,
-      distrito:   r.distrito   ?? null,
+      estado:     r.estado?.toUpperCase() === 'ACTIVO' ? 'activa' : 'inactiva',
+      region:     '',
+      provincia:  null,
+      distrito:   null,
       latitud:    null,
       longitud:   null,
     }))

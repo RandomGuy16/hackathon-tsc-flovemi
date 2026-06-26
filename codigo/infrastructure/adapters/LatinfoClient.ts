@@ -63,15 +63,13 @@ export type LatinfoKybResponse = {
   risk_flags: string[]
 }
 
-export type LatinfoSearchResponse = {
-  data: Array<{
-    ruc:        string
-    razon_social: string
-    region?:    string
-    provincia?: string
-    distrito?:  string
-  }>
+// Respuesta real: array directo, cada item tiene id=RUC
+export type LatinfoSearchItem = {
+  id:           string   // RUC
+  razon_social: string
+  estado:       string   // 'ACTIVO' | 'BAJA DE OFICIO' | ...
 }
+export type LatinfoSearchResponse = LatinfoSearchItem[]
 
 // ─── Cliente HTTP ─────────────────────────────────────────────────────────────
 
