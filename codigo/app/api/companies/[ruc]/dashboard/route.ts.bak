@@ -1,0 +1,44 @@
+import { NextRequest, NextResponse } from "next/server";
+import { LatinfoAdapter } from "../../../../../infrastructure/adapters/LatinfoAdapter";
+import { GetCompanyDashboard } from "../../../../../domain/usecases/GetCompanyDashboard";
+
+// GET /api/companies/[ruc]/dashboard
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ ruc: string }> }
+) {
+  try {
+    const { ruc } = await params;
+
+    // 1. Validate parameter existence
+    if (!ruc) {
+      return NextResponse.json(
+        { error: "RUC parameter is required" }, 
+        { status: 400 }
+      );
+    }
+
+    // 2. Instantiate repository adapter and use case (Clean Architecture composition)
+    const latinfoAdapter = new LatinfoAdapter();
+    const useCase = new GetCompanyDashboard(latinfoAdapter);
+
+    // 3. Execute query
+    const dashboardData = await useCase.execute(ruc);
+
+    // 4. Return successful JSON response
+    return NextResponse.json(dashboardData);
+
+  } catch (error: any) {
+    console.error("Dashboard API Route error:", error.message);
+    
+    // Distinguish validation errors (400) from server errors (500)
+    if (error.message.includes("inválido") || error.message.includes("dígitos")) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    return NextResponse.json(
+      { error: "Error interno al procesar los datos de la empresa" }, 
+      { status: 500 }
+    );
+  }
+}
