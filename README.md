@@ -49,9 +49,9 @@ El 47% de los proyectos mineros en Perú tienen conflictos sociales activos. Las
 
 | Integrante | Rol |
 |---|---|
-| [Nombre A] | Dominio + Backend: entidades, casos de uso, API routes |
-| [Nombre B] | Frontend: buscador, ficha de empresa, mapa |
-| [Nombre C] | Infraestructura, testing, deploy y documentación |
+| Diego Sotelo | Backend: entidades, casos de uso, API routes |
+| Ariana Cárdenas | Frontend: buscador, ficha de empresa, mapa |
+| Aaroon Delgado | Infraestructura: conexión Supabase, seed de datos, deploy |
 
 ---
 
