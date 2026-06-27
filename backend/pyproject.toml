@@ -1,0 +1,7 @@
+[project]
+name = "minerawatch-mining-comp-crawler"
+version = "0.1.0"
+description = "Service to populate database in supabase"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
